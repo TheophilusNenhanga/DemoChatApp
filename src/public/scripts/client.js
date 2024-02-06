@@ -20,10 +20,21 @@ document.addEventListener("DOMContentLoaded", () => {
 			nameInput.disabled = true;
 			nameInput.placeholder = username;
 			nameP.innerText = "You are: "
+
+			socket.emit("new-user", {
+				username: username
+			});
 		} else {
 			username = "anonymous"
 		}
 	});
+
+	chatBox.addEventListener("keydown", (event) => {
+		if (chatBox.value.includes("/wordle")){
+			chatBox.classList.add("text-green-400")
+		}
+	});
+
 
 	messageSender.addEventListener("submit", (event) => {
 		event.preventDefault();
