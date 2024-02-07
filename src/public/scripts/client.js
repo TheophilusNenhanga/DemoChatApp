@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
 	const nameForm = document.getElementById("name-form");
 	const nameP = document.getElementById("name-p");
 
+	const wordleScores = document.getElementById("wordle-scores");
+
 	const messageContainer = document.getElementById("message-container");
 
 	nameForm.addEventListener("submit", (event) => {
@@ -30,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 
 	chatBox.addEventListener("keydown", (event) => {
-		if (chatBox.value.includes("/wordle")){
+		if (chatBox.value.includes("/wordle")) {
 			chatBox.classList.add("text-green-400")
 		}
 	});
@@ -49,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				time: fullDate
 			});
 			chatBox.value = "";
+			chatBox.classList.remove("text-green-400");
 		}
 	});
 
@@ -78,4 +81,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		window.scrollTo(0, messageContainer.scrollHeight);
 	});
-})
+
+	socket.on("score-update", (messages) => {
+		wordleScores.innerHTML = "";
+
+		messages.forEach((message, index) => {
+			let li = document.createElement("li");
+			let span = document.createElement("span")
+			let horizontal = document.createElement("span");
+			horizontal.classList.add("bg-gray-300", "h-px", "w-full", "mb-2");
+			let horizontal1 = document.createElement("span");
+			horizontal1.classList.add("bg-gray-300", "h-px", "w-full", "mb-2");
+			let p = document.createElement("p")
+			p.classList.add("mb-2")
+			let small = document.createElement("small");
+			small.classList.add("text-xs")
+			span.classList.add("text-xs")
+			p.textContent = message.message;
+			span.textContent = message.sender
+			small.textContent = message.time
+			li.appendChild(span)
+			li.appendChild(horizontal);
+			li.appendChild(p)
+			li.appendChild(horizontal1);
+			li.appendChild(small)
+			wordleScores.appendChild(li);
+
+			li.classList.add("flex", "flex-col", "mb-2", "rounded", "w-full", "rounded-2xl", "px-4", "py-2", "bg-gray-200");
+
+			switch (index){
+				case 0: {
+					li.classList.add("bg-yellow-200");
+					break;
+				}
+				case 1: {
+					li.classList.add("bg-zinc-200");
+					break;
+				}
+				case 2: {
+					li.classList.add("bg-orange-200");
+					break;
+				}
+			}
+			
+			
+		});
+
+
+
+	});
+});

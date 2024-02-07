@@ -4,8 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
 import { Server } from 'socket.io';
 import * as path from "path";
-import { legalCharacters, users } from './storage.js';
+import { legalCharacters, messages, users } from './storage.js';
 import { Message, User } from './models.js';
+import { checkHighScores } from './util.js';
 
 const app = express();
 const server = createServer(app);
@@ -20,7 +21,6 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-
 io.on("connection", (socket) => {
     console.log("User Connected");
 
@@ -34,6 +34,9 @@ io.on("connection", (socket) => {
                         console.log(score);
                         if (legalCharacters.includes(score)){
                             user.wordleMessages.push(new Message(message.username, score, message.time));
+                            messages.push(new Message(message.username, score, message.time));
+                            checkHighScores(messages);
+                            io.emit("score-update", messages)
                         }else{
                             // wordle command failed
                             user.generalMessages.push(new Message(message.username, message.message, message.time));
@@ -44,7 +47,7 @@ io.on("connection", (socket) => {
                 }
             });
         }
-        checkHighScores();
+        
         io.emit("chat-message", message);
     });
 
@@ -55,8 +58,14 @@ io.on("connection", (socket) => {
     socket.on('disconnect', () => {
         console.log('User disconnected');
       });
+
 });
 
+const deleteWordleMessages = setInterval(() => {
+    messages.slice(0, messages.length);
+    console.log("cleared");
+}, 86400000)
+// 86400000
 
 server.listen(3000, () => {
    console.log("Server running")
