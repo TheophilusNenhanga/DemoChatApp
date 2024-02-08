@@ -1,8 +1,8 @@
-import express from 'express';
-import { createServer } from 'node:http';
-import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
-import { Server } from 'socket.io';
+import express from "express";
+import { createServer } from "node:http";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+import { Server } from "socket.io";
 import * as path from "path";
 import { legalCharacters, messages, users } from './storage.js';
 import { Message, User } from './models.js';
@@ -17,7 +17,7 @@ const __dirname = dirname(__filename);
 
 app.use(express.static(path.join(__dirname, "./public")));
 
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 

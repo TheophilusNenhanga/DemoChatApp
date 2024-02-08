@@ -2,6 +2,9 @@ const socket = io();
 
 document.addEventListener("DOMContentLoaded", () => {
 	let username;
+
+	let wordleSent = false;
+	const statusMessage = document.getElementById("status-message")
 	const chatBox = document.getElementById("chatBox");
 	const messageSender = document.getElementById("message-sender");
 	const setName = document.getElementById("set-name");
@@ -31,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 	});
 
-	chatBox.addEventListener("keydown", (event) => {
+	chatBox.addEventListener("keydown", () => {
 		if (chatBox.value.includes("/wordle")) {
 			chatBox.classList.add("text-green-400")
 		}
@@ -44,14 +47,31 @@ document.addEventListener("DOMContentLoaded", () => {
 		let date = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
 		let hours = d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
 		let fullDate = date + " " + hours;
+
+
 		if (chatBox.value) {
-			socket.emit("chat-message", {
-				username: username !== undefined ? username : "anonymous",
-				message: chatBox.value,
-				time: fullDate
-			});
-			chatBox.value = "";
-			chatBox.classList.remove("text-green-400");
+
+			if (!wordleSent) {
+				socket.emit("chat-message", {
+					username: username !== undefined ? username : "anonymous",
+					message: chatBox.value,
+					time: fullDate
+				});
+
+				if (chatBox.value.includes("/wordle")) {
+					wordleSent = true;
+				}
+
+				chatBox.value = "";
+				chatBox.classList.remove("text-green-400");
+			}else{
+				statusMessage.textContent = "Only one wordle score per day!"
+				statusMessage.classList.add("text-red-400");
+				setTimeout(() => {
+					statusMessage.textContent = "";
+					statusMessage.classList.remove("text-red-400");
+			}, 5000);
+			}
 		}
 	});
 
@@ -109,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 			li.classList.add("flex", "flex-col", "mb-2", "rounded", "w-full", "rounded-2xl", "px-4", "py-2", "bg-gray-200");
 
-			switch (index){
+			switch (index) {
 				case 0: {
 					li.classList.add("bg-yellow-200");
 					break;
@@ -123,11 +143,15 @@ document.addEventListener("DOMContentLoaded", () => {
 					break;
 				}
 			}
-			
-			
 		});
-
-
-
 	});
+
+	setInterval(() => { // just for demonstration purposes. In practice this would not work explain why...
+		statusMessage.textContent = "You can send another wordle score";
+		statusMessage.classList.add("text-green-400");
+		setTimeout(()=>{
+			statusMessage.textContent = "";
+		}, 5000);
+		wordleSent = false;
+	}, 86400000);
 });
